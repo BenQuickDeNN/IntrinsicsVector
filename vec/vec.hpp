@@ -30,8 +30,6 @@ public:
      * Return the vector size (n * sizeof(type))
      */
     virtual int size();
-
-    
 };
 
 #endif

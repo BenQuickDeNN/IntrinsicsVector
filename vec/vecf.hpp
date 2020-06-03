@@ -9,6 +9,7 @@
 
 #include "vec.hpp"
 
+// single type definition
 #if defined(__AVX512F__)
     typedef __m512 typef;
 #elif defined(__AVX__)
@@ -29,6 +30,9 @@ private:
     typef val;
 
 public:
+    Vecf() {}
+    Vecf(const typef& val) : val(val) {}
+
     inline Vecf & operator = (Vecf& vec) { this->val = vec.Val(); return *this; }
 
     void load(const float* arr)
@@ -75,21 +79,47 @@ public:
     inline void setVal(const typef& val) { this->val = val; }
 };
 
-static inline typef operator + (Vecf& vec1, Vecf& vec2);
-static inline typef operator - (Vecf& vec1, Vecf& vec2);
-static inline typef operator * (Vecf& vec1, Vecf& vec2);
-static inline typef operator / (Vecf& vec1, Vecf& vec2);
+static inline Vecf operator + (Vecf& vec1, Vecf& vec2);
+static inline Vecf operator - (Vecf& vec1, Vecf& vec2);
+static inline Vecf operator * (Vecf& vec1, Vecf& vec2);
+static inline Vecf operator / (Vecf& vec1, Vecf& vec2);
 
-static inline typef operator + (Vecf& vec1, Vecf& vec2)
+static inline Vecf operator + (Vecf& vec1, Vecf& vec2)
 {
 #if defined(__AVX512F__)
-    return _mm512_add_ps(vec1.Val(), vec2.Val());
+    return Vecf(_mm512_add_ps(vec1.Val(), vec2.Val()));
 #elif defined(__AVX__)
-    return _mm256_add_ps(vec1.Val(), vec2.Val());
+    return Vecf(_mm256_add_ps(vec1.Val(), vec2.Val()));
 #elif defined(__SSE__)
-    return _mm_add_ps(vec1.Val(), vec2.Val());
+    return Vecf(_mm_add_ps(vec1.Val(), vec2.Val()));
 #else
-    return vec1.Val() + vec2.Val();
+    return Vecf(vec1.Val() + vec2.Val());
+#endif
+}
+
+static inline Vecf operator - (Vecf& vec1, Vecf& vec2)
+{
+#if defined(__AVX512F__)
+    return _mm512_sub_ps(vec1.Val(), vec2.Val());
+#elif defined(__AVX__)
+    return _mm256_sub_ps(vec1.Val(), vec2.Val());
+#elif defined(__SSE__)
+    return _mm_sub_ps(vec1.Val(), vec2.Val());
+#else
+    return vec1.Val() - vec2.Val();
+#endif
+}
+
+static inline Vecf operator * (Vecf& vec1, Vecf& vec2)
+{
+#if defined(__AVX512F__)
+    return _mm512_mul_ps(vec1.Val(), vec2.Val());
+#elif defined(__AVX__)
+    return _mm256_mul_ps(vec1.Val(), vec2.Val());
+#elif defined(__SSE__)
+    return _mm_mul_ps(vec1.Val(), vec2.Val());
+#else
+    return vec1.Val() * vec2.Val();
 #endif
 }
 
