@@ -33,7 +33,7 @@ public:
     Vecf() {}
     Vecf(const typef& val) : val(val) {}
 
-    inline Vecf & operator = (Vecf& vec) { this->val = vec.Val(); return *this; }
+    inline Vecf & operator = (const Vecf& vec) { this->val = vec.Val(); return *this; }
 
     void load(const float* arr)
     {
