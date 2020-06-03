@@ -126,13 +126,13 @@ static inline Vecf operator * (const Vecf& vec1, const Vecf& vec2)
 static inline Vecf operator / (const Vecf& vec1, const Vecf& vec2)
 {
 #if defined(__AVX512F__)
-    return Vecf(_mm512_mul_ps(vec1.Val(), vec2.Val()));
+    return Vecf(_mm512_div_ps(vec1.Val(), vec2.Val()));
 #elif defined(__AVX__)
-    return Vecf(_mm256_mul_ps(vec1.Val(), vec2.Val()));
+    return Vecf(_mm256_div_ps(vec1.Val(), vec2.Val()));
 #elif defined(__SSE__)
-    return Vecf(_mm_mul_ps(vec1.Val(), vec2.Val()));
+    return Vecf(_mm_div_ps(vec1.Val(), vec2.Val()));
 #else
-    return Vecf(vec1.Val() * vec2.Val());
+    return Vecf(vec1.Val() / vec2.Val());
 #endif
 }
 
