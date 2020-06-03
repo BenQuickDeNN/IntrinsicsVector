@@ -9,21 +9,24 @@
 
 #include "vec.hpp"
 
+#if defined(__AVX512F__)
+    typedef __m512 typef;
+#elif defined(__AVX__)
+    typedef __m256 typef;
+#elif defined(__SSE__)
+    typedef __m128 typef;
+#else
+    typedef float typef;
+#endif
+
 /**
  * Vec class with single precision
  */
 class Vecf : Vec
 {
+
 private:
-#if defined(__AVX512F__)
-    __m512 val;
-#elif defined(__AVX__)
-    __m256 val;
-#elif defined(__SSE__)
-    __m128 val;
-#else
-    float val;
-#endif
+    typef val;
 
 public:
     inline Vecf & operator = (Vecf& vec) { this->val = vec.Val(); return *this; }
@@ -67,47 +70,27 @@ public:
 #endif
     }
 
-#if defined(__AVX512F__)
-    inline Vecf & operator = (const __m512& val) { this->val = val; return *this; }
-
-    inline __m512& Val() { return val; }
-    inline void setVal(const __m512& val) { this->val = val; }
-#elif defined(__AVX__)
-    inline Vecf & operator = (const __m256& val) { this->val = val; return *this; }
-
-    inline __m256& Val() { return val; }
-    inline void setVal(const __m256& val) { this->val = val; }
-#elif defined(__SSE__)
-    inline Vecf & operator = (const __m128& val) { this->val = val; return *this; }
-
-    inline __m128& Val() { return val; }
-    inline void setVal(const __m128& val) { this->val = val; }
-#else
-    inline Vecf & operator = (const float& val) { this->val = val; return *this; }
-
-    inline float& Val() { return val; }
-    inline void setVal(const float& val) { this->val = val; }
-#endif
+    inline Vecf & operator = (const typef& val) { this->val = val; return *this; }
+    inline typef& Val() { return val; }
+    inline void setVal(const typef& val) { this->val = val; }
 };
 
-static inline Vecf & operator + (Vecf& vec1, Vecf& vec2);
-static inline Vecf & operator - (Vecf& vec1, Vecf& vec2);
-static inline Vecf & operator * (Vecf& vec1, Vecf& vec2);
-static inline Vecf & operator / (Vecf& vec1, Vecf& vec2);
+static inline typef operator + (Vecf& vec1, Vecf& vec2);
+static inline typef operator - (Vecf& vec1, Vecf& vec2);
+static inline typef operator * (Vecf& vec1, Vecf& vec2);
+static inline typef operator / (Vecf& vec1, Vecf& vec2);
 
-static inline Vecf & operator + (Vecf& vec1, Vecf& vec2)
+static inline typef operator + (Vecf& vec1, Vecf& vec2)
 {
-    Vecf ret;
 #if defined(__AVX512F__)
-    ret.setVal(_mm512_add_ps(vec1.Val(), vec2.Val()));
+    return _mm512_add_ps(vec1.Val(), vec2.Val());
 #elif defined(__AVX__)
-    ret.setVal(_mm256_add_ps(vec1.Val(), vec2.Val()));
+    return _mm256_add_ps(vec1.Val(), vec2.Val());
 #elif defined(__SSE__)
-    ret.setVal(_mm_add_ps(vec1.Val(), vec2.Val()));
+    return _mm_add_ps(vec1.Val(), vec2.Val());
 #else
-    ret.setVal(vec1.Val() + vec2.Val());
+    return vec1.Val() + vec2.Val();
 #endif
-    return ret;
 }
 
 #endif
