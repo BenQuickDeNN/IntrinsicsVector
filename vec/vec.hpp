@@ -15,8 +15,6 @@
 class Vec
 {
 public:
-    inline virtual Vec & operator = (Vec& vec);
-    
     /**
      * Load data from array to vector
      */
