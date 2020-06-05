@@ -9,16 +9,10 @@
 
 #include "vec.hpp"
 
-// single type definition
-#if defined(__AVX512F__)
-    typedef __m512 typef;
-#elif defined(__AVX__)
-    typedef __m256 typef;
-#elif defined(__SSE__)
-    typedef __m128 typef;
-#else
-    typedef float typef;
-#endif
+static inline Vecf operator + (const Vecf& vec1, const Vecf& vec2);
+static inline Vecf operator - (const Vecf& vec1, const Vecf& vec2);
+static inline Vecf operator * (const Vecf& vec1, const Vecf& vec2);
+static inline Vecf operator / (const Vecf& vec1, const Vecf& vec2);
 
 /**
  * Vec class with single precision
@@ -34,106 +28,89 @@ public:
     Vecf(const typef& val) : val(val) {}
 
     inline Vecf & operator = (const Vecf& vec) { this->val = vec.Val(); return *this; }
-
-    void load(const float* arr)
-    {
-#if defined(__AVX512F__)
-        val = _mm512_loadu_ps(arr);
-#elif defined(__AVX__)
-        val = _mm256_loadu_ps(arr);
-#elif defined(__SSE__)
-        val = _mm_loadu_ps(arr);
-#else
-        val = *arr;
-#endif
-    }
-
-    void store(float* arr)
-    {
-#if defined(__AVX512F__)
-        _mm512_storeu_ps(arr, val);
-#elif defined(__AVX__)
-        _mm256_storeu_ps(arr, val);
-#elif defined(__SSE__)
-        _mm_storeu_ps(arr, val);
-#else
-        *arr = val;
-#endif    
-    }
-
-    static int size()
-    {
-#if defined(__AVX512F__)
-        return 16;
-#elif defined(__AVX__)
-        return 8;
-#elif defined(__SSE__)
-        return 4;
-#else
-        return 1;
-#endif
-    }
-
     inline Vecf & operator = (const typef& val) { this->val = val; return *this; }
+
     inline typef Val() const { return val; }
     inline void setVal(const typef& val) { this->val = val; }
+
+    void load(const float* arr);
+    void store(float* arr);
+
+    static int size();
 };
 
-static inline Vecf operator + (const Vecf& vec1, const Vecf& vec2);
-static inline Vecf operator - (const Vecf& vec1, const Vecf& vec2);
-static inline Vecf operator * (const Vecf& vec1, const Vecf& vec2);
-static inline Vecf operator / (const Vecf& vec1, const Vecf& vec2);
-
-static inline Vecf operator + (const Vecf& vec1, const Vecf& vec2)
-{
 #if defined(__AVX512F__)
-    return Vecf(_mm512_add_ps(vec1.Val(), vec2.Val()));
-#elif defined(__AVX__)
-    return Vecf(_mm256_add_ps(vec1.Val(), vec2.Val()));
-#elif defined(__SSE__)
-    return Vecf(_mm_add_ps(vec1.Val(), vec2.Val()));
-#else
-    return Vecf(vec1.Val() + vec2.Val());
-#endif
-}
+
+void Vecf::load(const float* arr) { val = _mm512_loadu_ps(arr); }
+void Vecf::store(float* arr) { _mm512_storeu_ps(arr, val); }
+int Vecf::size() { return 16; }
+
+static inline Vecf operator + (const Vecf& vec1, const Vecf& vec2) 
+{ return Vecf(_mm512_add_ps(vec1.Val(), vec2.Val())); }
 
 static inline Vecf operator - (const Vecf& vec1, const Vecf& vec2)
-{
-#if defined(__AVX512F__)
-    return Vecf(_mm512_sub_ps(vec1.Val(), vec2.Val()));
-#elif defined(__AVX__)
-    return Vecf(_mm256_sub_ps(vec1.Val(), vec2.Val()));
-#elif defined(__SSE__)
-    return Vecf(_mm_sub_ps(vec1.Val(), vec2.Val()));
-#else
-    return Vecf(vec1.Val() - vec2.Val());
-#endif
-}
+{ return Vecf(_mm512_sub_ps(vec1.Val(), vec2.Val())); }
 
 static inline Vecf operator * (const Vecf& vec1, const Vecf& vec2)
-{
-#if defined(__AVX512F__)
-    return Vecf(_mm512_mul_ps(vec1.Val(), vec2.Val()));
-#elif defined(__AVX__)
-    return Vecf(_mm256_mul_ps(vec1.Val(), vec2.Val()));
-#elif defined(__SSE__)
-    return Vecf(_mm_mul_ps(vec1.Val(), vec2.Val()));
-#else
-    return Vecf(vec1.Val() * vec2.Val());
-#endif
-}
+{ return Vecf(_mm512_mul_ps(vec1.Val(), vec2.Val())); }
 
 static inline Vecf operator / (const Vecf& vec1, const Vecf& vec2)
-{
-#if defined(__AVX512F__)
-    return Vecf(_mm512_div_ps(vec1.Val(), vec2.Val()));
+{ return Vecf(_mm512_div_ps(vec1.Val(), vec2.Val())); }
+
 #elif defined(__AVX__)
-    return Vecf(_mm256_div_ps(vec1.Val(), vec2.Val()));
+
+void Vecf::load(const float* arr) { val = _mm256_loadu_ps(arr); }
+void Vecf::store(float* arr) { _mm256_storeu_ps(arr, val); }
+int Vecf::size() { return 8; }
+
+static inline Vecf operator + (const Vecf& vec1, const Vecf& vec2) 
+{ return Vecf(_mm256_add_ps(vec1.Val(), vec2.Val())); }
+
+static inline Vecf operator - (const Vecf& vec1, const Vecf& vec2)
+{ return Vecf(_mm256_sub_ps(vec1.Val(), vec2.Val())); }
+
+static inline Vecf operator * (const Vecf& vec1, const Vecf& vec2)
+{ return Vecf(_mm256_mul_ps(vec1.Val(), vec2.Val())); }
+
+static inline Vecf operator / (const Vecf& vec1, const Vecf& vec2)
+{ return Vecf(_mm256_div_ps(vec1.Val(), vec2.Val())); }
+
 #elif defined(__SSE__)
-    return Vecf(_mm_div_ps(vec1.Val(), vec2.Val()));
+
+void Vecf::load(const float* arr) { val = _mm_loadu_ps(arr); }
+void Vecf::store(float* arr) { _mm_storeu_ps(arr, val); }
+int Vecf::size() { return 4; }
+
+static inline Vecf operator + (const Vecf& vec1, const Vecf& vec2) 
+{ return Vecf(_mm_add_ps(vec1.Val(), vec2.Val())); }
+
+static inline Vecf operator - (const Vecf& vec1, const Vecf& vec2)
+{ return Vecf(_mm_sub_ps(vec1.Val(), vec2.Val())); }
+
+static inline Vecf operator * (const Vecf& vec1, const Vecf& vec2)
+{ return Vecf(_mm_mul_ps(vec1.Val(), vec2.Val())); }
+
+static inline Vecf operator / (const Vecf& vec1, const Vecf& vec2)
+{ return Vecf(_mm_div_ps(vec1.Val(), vec2.Val())); }
+
 #else
-    return Vecf(vec1.Val() / vec2.Val());
+
+void Vecf::load(const float* arr) { val = *arr; }
+void Vecf::store(float* arr) { *arr = val; }
+int Vecf::size() { return 1; }
+
+static inline Vecf operator + (const Vecf& vec1, const Vecf& vec2) 
+{ return Vecf(vec1.Val() + vec2.Val()); }
+
+static inline Vecf operator - (const Vecf& vec1, const Vecf& vec2)
+{ return Vecf(vec1.Val() - vec2.Val()); }
+
+static inline Vecf operator * (const Vecf& vec1, const Vecf& vec2)
+{ return Vecf(vec1.Val() * vec2.Val()); }
+
+static inline Vecf operator / (const Vecf& vec1, const Vecf& vec2)
+{ return Vecf(vec1.Val() / vec2.Val()); }
+
 #endif
-}
 
 #endif

@@ -56,6 +56,7 @@ void v_kernel()
     c2 = new float[LEN];
 
     v_addf(a, b, c1, c2);
+    v_subf(a, b, c1, c2);
 
     if (c2 != NULL) delete c2;
     if (c1 != NULL) delete c1;
@@ -113,4 +114,56 @@ void v_addf(float* a, float* b, float* c1, float* c2)
     }
     else
         cerr << "v_addf error: NULL pointer error!" << endl;
+}
+
+void v_subf(float* a, float* b, float* c1, float* c2)
+{
+    if (a != NULL && b != NULL && c1 != NULL && c2 != NULL)
+    {
+        fillf(a, 5.0);
+        fillf(b, 3.0);
+        Timer timer;
+        const unsigned long tmplen = LEN - LEN % 16;
+
+        /* vector class */
+        Vec16f vc_a, vc_b;
+
+        timer.start();
+
+        #pragma omp parallel for num_threads(OMP_NUM_THREADS) private(vc_a, vc_b)
+        for (unsigned long i = 0; i < tmplen; i+=16)
+        {
+            vc_a.load(a + i);
+            vc_b.load(b + i);
+            vc_a = vc_a - vc_b;
+            vc_a.store(c1 + i);
+        }
+
+        for (unsigned long i = tmplen; i < LEN; i++)
+            c1[i] = a[i] - b[i];
+
+        printf("v_subf vector class elapsed %.3f us\n", timer.end_us());
+
+        /* intrinsics vector */
+        Vecf iv_a, iv_b;
+        const int step = Vecf::size();
+
+        timer.start();
+
+        #pragma omp parallel for num_threads(OMP_NUM_THREADS) private(iv_a, iv_b)
+        for (unsigned long i = 0; i < tmplen; i+=step)
+        {
+            iv_a.load(a + i);
+            iv_b.load(b + i);
+            iv_a = iv_a - iv_b;
+            iv_a.store(c2 + i);
+        }
+
+        for (unsigned long i = tmplen; i < LEN; i++)
+            c2[i] = a[i] - b[i];
+
+        printf("v_subf intrinsics vector elapsed %.3f us\n", timer.end_us());
+    }
+    else
+        cerr << "v_subf error: NULL pointer error!" << endl;
 }
