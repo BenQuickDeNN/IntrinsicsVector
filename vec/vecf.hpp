@@ -38,11 +38,11 @@ public:
     void load(const float* arr)
     {
 #if defined(__AVX512F__)
-        val = _mm512_load_ps(arr);
+        val = _mm512_loadu_ps(arr);
 #elif defined(__AVX__)
-        val = _mm256_load_ps(arr);
+        val = _mm256_loadu_ps(arr);
 #elif defined(__SSE__)
-        val = _mm_load_ps(arr);
+        val = _mm_loadu_ps(arr);
 #else
         val = *arr;
 #endif
@@ -51,11 +51,11 @@ public:
     void store(float* arr)
     {
 #if defined(__AVX512F__)
-        _mm512_store_ps(arr, val);
+        _mm512_storeu_ps(arr, val);
 #elif defined(__AVX__)
-        _mm256_store_ps(arr, val);
+        _mm256_storeu_ps(arr, val);
 #elif defined(__SSE__)
-        _mm_store_ps(arr, val);
+        _mm_storeu_ps(arr, val);
 #else
         *arr = val;
 #endif    
