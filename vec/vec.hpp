@@ -18,16 +18,16 @@ public:
     /**
      * Load data from array to vector
      */
-    virtual void load(const void* arr);
+    virtual void load(const void* arr) {}
     /**
      * Store data from vector to array
      */
-    virtual void store(void* arr);
+    virtual void store(void* arr) {}
 
     /**
      * Return the vector size (n * sizeof(type))
      */
-    virtual int size();
+    static int size() {}
 };
 
 #endif

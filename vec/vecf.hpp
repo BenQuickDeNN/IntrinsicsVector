@@ -23,7 +23,7 @@
 /**
  * Vec class with single precision
  */
-class Vecf : Vec
+class Vecf : public Vec
 {
 
 private:
@@ -61,7 +61,7 @@ public:
 #endif    
     }
 
-    int size()
+    static int size()
     {
 #if defined(__AVX512F__)
         return 16;
