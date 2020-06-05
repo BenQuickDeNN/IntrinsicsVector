@@ -96,9 +96,10 @@ void v_addf(float* a, float* b, float* c1, float* c2)
 
         timer.start();
 
-        #pragma omp parallel for num_threads(OMP_NUM_THREADS) private(iv_a, iv_b)
+        //#pragma omp parallel for num_threads(OMP_NUM_THREADS) private(iv_a, iv_b)
         for (unsigned long i = 0; i < tmplen; i+=16)
         {
+            cerr << i << ",";
             iv_a.load(a + i);
             iv_b.load(b + i);
             iv_a = iv_a + iv_b;
