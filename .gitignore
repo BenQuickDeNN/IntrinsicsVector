@@ -1,3 +1,4 @@
 *.exe
 example/bin
 example/build
+example/experiment_doc
