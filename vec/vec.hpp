@@ -27,7 +27,7 @@ public:
     /**
      * Return the vector size (n * sizeof(type))
      */
-    static int size() {}
+    static int size() { return 0; }
 };
 
 #endif
