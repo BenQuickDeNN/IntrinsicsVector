@@ -9,11 +9,6 @@
 
 #include "vec.hpp"
 
-static inline Vecf operator + (const Vecf& vec1, const Vecf& vec2);
-static inline Vecf operator - (const Vecf& vec1, const Vecf& vec2);
-static inline Vecf operator * (const Vecf& vec1, const Vecf& vec2);
-static inline Vecf operator / (const Vecf& vec1, const Vecf& vec2);
-
 /**
  * Vec class with single precision
  */
@@ -38,6 +33,11 @@ public:
 
     static int size();
 };
+
+static inline Vecf operator + (const Vecf& vec1, const Vecf& vec2);
+static inline Vecf operator - (const Vecf& vec1, const Vecf& vec2);
+static inline Vecf operator * (const Vecf& vec1, const Vecf& vec2);
+static inline Vecf operator / (const Vecf& vec1, const Vecf& vec2);
 
 #if defined(__AVX512F__)
 
