@@ -35,7 +35,6 @@ void v_poly3f(float* a, const float& scalar, float* c1, float* c2);
 
 int main()
 {
-    cout << "problem size: " << LEN << " float" << endl;
     v_kernel();
     return 0;
 }
@@ -50,12 +49,31 @@ void fillf(float* p, const float& val)
 
 void v_kernel()
 {
+    cout << "Number of omp threads: " << OMP_NUM_THREADS << endl;
+    cout << "Problem size: " << LEN << " float" << endl;
+    cout << "Vector extension instruction set: ";
+#if defined(__AVX512F__)
+    cout << "AVX512F";
+#elif defined(__AVX__)
+    cout << "AVX";
+#elif defined(__SSE__)
+    cout << "SSE";
+#else
+    cout << "NONE";
+#endif
+    cout << endl;
+
     float *a, *b, *c1, *c2;
 
     a = new float[LEN];
     b = new float[LEN];
     c1 = new float[LEN];
     c2 = new float[LEN];
+
+    cout << strLine << endl;
+    cout << "this is warm-up computation, the result may be inaccurate!" << endl;
+    v_addf(a, b, c1, c2);
+    cout << strLine << endl;
 
     cout << strLine << endl;
     v_addf(a, b, c1, c2);
@@ -74,6 +92,11 @@ void v_kernel()
     cout << strLine << endl;
 
     cout << strLine << endl;
+    cout << "this is warm-up computation, the result may be inaccurate!" << endl;
+    v_poly2f(a, 1.0, c1, c2);
+    cout << strLine << endl;
+
+    cout << strLine << endl;
     v_poly2f(a, 1.0, c1, c2);
     cout << strLine << endl;
 
@@ -89,12 +112,13 @@ void v_kernel()
 
 void v_addf(float* a, float* b, float* c1, float* c2)
 {
-    cout << "v_addf:" << endl;
+    cout << "vector add with single precison:" << endl;
     if (a != NULL && b != NULL && c1 != NULL && c2 != NULL)
     {
         fillf(a, 2.0);
         fillf(b, 3.0);
         Timer timer;
+        double elapsed_vc, elapsed_iv;
         const unsigned long tmplen = LEN - LEN % 16;
 
         /* vector class */
@@ -115,7 +139,8 @@ void v_addf(float* a, float* b, float* c1, float* c2)
         for (unsigned long i = tmplen; i < LEN; i++)
             c1[i] = a[i] + b[i];
 
-        printf("vector class elapsed %.3f us\n", timer.end_us());
+        elapsed_vc = timer.end_us();
+        printf("vector class elapsed %.3f us\n", elapsed_vc);
 
         /* intrinsics vector */
         Vecf iv_a, iv_b;
@@ -135,7 +160,9 @@ void v_addf(float* a, float* b, float* c1, float* c2)
         for (unsigned long i = tmplen; i < LEN; i++)
             c2[i] = a[i] + b[i];
 
-        printf("intrinsics vector elapsed %.3f us\n", timer.end_us());
+        elapsed_iv = timer.end_us();
+        printf("intrinsics vector elapsed %.3f us\n", elapsed_iv);
+        printf("speedup of ic/vc: %.3f\n", elapsed_vc / elapsed_iv);
     }
     else
         cerr << "error: NULL pointer error!" << endl;
@@ -143,12 +170,13 @@ void v_addf(float* a, float* b, float* c1, float* c2)
 
 void v_subf(float* a, float* b, float* c1, float* c2)
 {
-    cout << "v_subf:" << endl;
+    cout << "vector sub with single precison:" << endl;
     if (a != NULL && b != NULL && c1 != NULL && c2 != NULL)
     {
         fillf(a, 5.0);
         fillf(b, 3.0);
         Timer timer;
+        double elapsed_vc, elapsed_iv;
         const unsigned long tmplen = LEN - LEN % 16;
 
         /* vector class */
@@ -168,7 +196,8 @@ void v_subf(float* a, float* b, float* c1, float* c2)
         for (unsigned long i = tmplen; i < LEN; i++)
             c1[i] = a[i] - b[i];
 
-        printf("vector class elapsed %.3f us\n", timer.end_us());
+        elapsed_vc = timer.end_us();
+        printf("vector class elapsed %.3f us\n", elapsed_vc);
 
         /* intrinsics vector */
         Vecf iv_a, iv_b;
@@ -188,7 +217,9 @@ void v_subf(float* a, float* b, float* c1, float* c2)
         for (unsigned long i = tmplen; i < LEN; i++)
             c2[i] = a[i] - b[i];
 
-        printf("intrinsics vector elapsed %.3f us\n", timer.end_us());
+        elapsed_iv = timer.end_us();
+        printf("intrinsics vector elapsed %.3f us\n", elapsed_iv);
+        printf("speedup of ic/vc: %.3f\n", elapsed_vc / elapsed_iv);
     }
     else
         cerr << "error: NULL pointer error!" << endl;
@@ -196,12 +227,13 @@ void v_subf(float* a, float* b, float* c1, float* c2)
 
 void v_mulf(float* a, float* b, float* c1, float* c2)
 {
-    cout << "v_mulf:" << endl;
+    cout << "vector mul with single precison:" << endl;
     if (a != NULL && b != NULL && c1 != NULL && c2 != NULL)
     {
         fillf(a, 2.0);
         fillf(b, 3.0);
         Timer timer;
+        double elapsed_vc, elapsed_iv;
         const unsigned long tmplen = LEN - LEN % 16;
 
         /* vector class */
@@ -221,7 +253,8 @@ void v_mulf(float* a, float* b, float* c1, float* c2)
         for (unsigned long i = tmplen; i < LEN; i++)
             c1[i] = a[i] * b[i];
 
-        printf("vector class elapsed %.3f us\n", timer.end_us());
+        elapsed_vc = timer.end_us();
+        printf("vector class elapsed %.3f us\n", elapsed_vc);
 
         /* intrinsics vector */
         Vecf iv_a, iv_b;
@@ -241,7 +274,9 @@ void v_mulf(float* a, float* b, float* c1, float* c2)
         for (unsigned long i = tmplen; i < LEN; i++)
             c2[i] = a[i] * b[i];
 
-        printf("intrinsics vector elapsed %.3f us\n", timer.end_us());
+        elapsed_iv = timer.end_us();
+        printf("intrinsics vector elapsed %.3f us\n", elapsed_iv);
+        printf("speedup of ic/vc: %.3f\n", elapsed_vc / elapsed_iv);
     }
     else
         cerr << "error: NULL pointer error!" << endl;
@@ -249,12 +284,13 @@ void v_mulf(float* a, float* b, float* c1, float* c2)
 
 void v_divf(float* a, float* b, float* c1, float* c2)
 {
-    cout << "v_divf:" << endl;
+    cout << "vector div with single precison:" << endl;
     if (a != NULL && b != NULL && c1 != NULL && c2 != NULL)
     {
         fillf(a, 2.0);
         fillf(b, 3.0);
         Timer timer;
+        double elapsed_vc, elapsed_iv;
         const unsigned long tmplen = LEN - LEN % 16;
 
         /* vector class */
@@ -274,7 +310,8 @@ void v_divf(float* a, float* b, float* c1, float* c2)
         for (unsigned long i = tmplen; i < LEN; i++)
             c1[i] = a[i] / b[i];
 
-        printf("vector class elapsed %.3f us\n", timer.end_us());
+        elapsed_vc = timer.end_us();
+        printf("vector class elapsed %.3f us\n", elapsed_vc);
 
         /* intrinsics vector */
         Vecf iv_a, iv_b;
@@ -294,7 +331,9 @@ void v_divf(float* a, float* b, float* c1, float* c2)
         for (unsigned long i = tmplen; i < LEN; i++)
             c2[i] = a[i] / b[i];
 
-        printf("intrinsics vector elapsed %.3f us\n", timer.end_us());
+        elapsed_iv = timer.end_us();
+        printf("intrinsics vector elapsed %.3f us\n", elapsed_iv);
+        printf("speedup of ic/vc: %.3f\n", elapsed_vc / elapsed_iv);
     }
     else
         cerr << "error: NULL pointer error!" << endl;
@@ -302,11 +341,12 @@ void v_divf(float* a, float* b, float* c1, float* c2)
 
 void v_poly2f(float* a, const float& scalar, float* c1, float* c2)
 {
-    cout << "v_poly2f:" << endl;
+    cout << "vector 2nd-order polynomial with single precison:" << endl;
     if (a != NULL && c1 != NULL && c2 != NULL)
     {
         fillf(a, 2.0);
         Timer timer;
+        double elapsed_vc, elapsed_iv;
         const unsigned long tmplen = LEN - LEN % 16;
 
         /* vector class */
@@ -314,7 +354,7 @@ void v_poly2f(float* a, const float& scalar, float* c1, float* c2)
 
         timer.start();
 
-        #pragma omp parallel for num_threads(OMP_NUM_THREADS) private(vc_a, vc_b)
+        #pragma omp parallel for num_threads(OMP_NUM_THREADS) private(vc_a)
         for (unsigned long i = 0; i < tmplen; i+=16)
         {
             vc_a.load(a + i);
@@ -325,7 +365,8 @@ void v_poly2f(float* a, const float& scalar, float* c1, float* c2)
         for (unsigned long i = tmplen; i < LEN; i++)
             c1[i] = a[i] * a[i] + a[i]; // + scalar
 
-        printf("vector class elapsed %.3f us\n", timer.end_us());
+        elapsed_vc = timer.end_us();
+        printf("vector class elapsed %.3f us\n", elapsed_vc);
 
         /* intrinsics vector */
         Vecf iv_a;
@@ -333,7 +374,7 @@ void v_poly2f(float* a, const float& scalar, float* c1, float* c2)
 
         timer.start();
 
-        #pragma omp parallel for num_threads(OMP_NUM_THREADS) private(iv_a, iv_b)
+        #pragma omp parallel for num_threads(OMP_NUM_THREADS) private(iv_a)
         for (unsigned long i = 0; i < tmplen; i+=step)
         {
             iv_a.load(a + i);
@@ -344,7 +385,9 @@ void v_poly2f(float* a, const float& scalar, float* c1, float* c2)
         for (unsigned long i = tmplen; i < LEN; i++)
             c2[i] = a[i] * a[i] + a[i]; // + scalar
 
-        printf("intrinsics vector elapsed %.3f us\n", timer.end_us());
+        elapsed_iv = timer.end_us();
+        printf("intrinsics vector elapsed %.3f us\n", elapsed_iv);
+        printf("speedup of ic/vc: %.3f\n", elapsed_vc / elapsed_iv);
     }
     else
         cerr << "error: NULL pointer error!" << endl;
@@ -352,11 +395,12 @@ void v_poly2f(float* a, const float& scalar, float* c1, float* c2)
 
 void v_poly3f(float* a, const float& scalar, float* c1, float* c2)
 {
-    cout << "v_poly3f:" << endl;
+    cout << "vector 3rd-order polynomial with single precison:" << endl;
     if (a != NULL && c1 != NULL && c2 != NULL)
     {
         fillf(a, 2.0);
         Timer timer;
+        double elapsed_vc, elapsed_iv;
         const unsigned long tmplen = LEN - LEN % 16;
 
         /* vector class */
@@ -364,7 +408,7 @@ void v_poly3f(float* a, const float& scalar, float* c1, float* c2)
 
         timer.start();
 
-        #pragma omp parallel for num_threads(OMP_NUM_THREADS) private(vc_a, vc_b)
+        #pragma omp parallel for num_threads(OMP_NUM_THREADS) private(vc_a)
         for (unsigned long i = 0; i < tmplen; i+=16)
         {
             vc_a.load(a + i);
@@ -375,7 +419,8 @@ void v_poly3f(float* a, const float& scalar, float* c1, float* c2)
         for (unsigned long i = tmplen; i < LEN; i++)
             c1[i] = a[i] * a[i] * a[i] + a[i] * a[i] + a[i]; // + scalar
 
-        printf("vector class elapsed %.3f us\n", timer.end_us());
+        elapsed_vc = timer.end_us();
+        printf("vector class elapsed %.3f us\n", elapsed_vc);
 
         /* intrinsics vector */
         Vecf iv_a;
@@ -383,7 +428,7 @@ void v_poly3f(float* a, const float& scalar, float* c1, float* c2)
 
         timer.start();
 
-        #pragma omp parallel for num_threads(OMP_NUM_THREADS) private(iv_a, iv_b)
+        #pragma omp parallel for num_threads(OMP_NUM_THREADS) private(iv_a)
         for (unsigned long i = 0; i < tmplen; i+=step)
         {
             iv_a.load(a + i);
@@ -394,7 +439,9 @@ void v_poly3f(float* a, const float& scalar, float* c1, float* c2)
         for (unsigned long i = tmplen; i < LEN; i++)
             c2[i] = a[i] * a[i] * a[i] + a[i] * a[i] + a[i]; // + scalar
 
-        printf("intrinsics vector elapsed %.3f us\n", timer.end_us());
+        elapsed_iv = timer.end_us();
+        printf("intrinsics vector elapsed %.3f us\n", elapsed_iv);
+        printf("speedup of ic/vc: %.3f\n", elapsed_vc / elapsed_iv);
     }
     else
         cerr << "error: NULL pointer error!" << endl;

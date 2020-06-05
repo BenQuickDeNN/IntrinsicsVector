@@ -9,7 +9,7 @@ include_directories(../)
 set(CMAKE_BUILD_TYPE Debug)
 
 # 在我的PC上构建，我的PC最高支持AVX指令集
-# set(CMAKE_CXX_FLAGS "-O3 -fopenmp -ftree-vectorize -mavx -Wall -std=c++17")
+#set(CMAKE_CXX_FLAGS "-O3 -fopenmp -ftree-vectorize -mfma -mavx -Wall -std=c++17")
 
 # 在学校服务器上构建，学校服务器最高支持AVX512F指令集
 set(CMAKE_CXX_FLAGS "-O3 -fopenmp -ftree-vectorize -mfma -mavx512f -Wall -std=c++17")
