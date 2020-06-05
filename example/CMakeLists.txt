@@ -19,3 +19,4 @@ set(CMAKE_CXX_FLAGS "-O3 -fopenmp -ftree-vectorize -mavx512f -Wall -std=c++17")
 
 # 生成可执行文件
 add_executable(vadd src/vadd.cpp)
+add_executable(compare_vc_iv src/compare_vc_iv.cpp)
