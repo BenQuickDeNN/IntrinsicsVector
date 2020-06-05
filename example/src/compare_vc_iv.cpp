@@ -23,10 +23,10 @@ void fillf(float* p, const float& val);
 
 void v_kernel();
 
-void v_addf();
-void v_subf();
-void v_mulf();
-void v_divf();
+void v_addf(float* a, float* b, float* c1, float* c2);
+void v_subf(float* a, float* b, float* c1, float* c2);
+void v_mulf(float* a, float* b, float* c1, float* c2);
+void v_divf(float* a, float* b, float* c1, float* c2);
 
 void v_poly1f();
 void v_poly2f();
