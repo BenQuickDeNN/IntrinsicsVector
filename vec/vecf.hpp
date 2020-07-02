@@ -48,7 +48,7 @@ static inline Vecf operator / (const Vecf& vec1, const Vecf& vec2);
 Vecf::Vecf(const float& val) { this->val = _mm512_set1_ps(val); }
 #endif
 
-void Vecf::load(const float* arr) { val = _mm512_loadu_ps(arr); }
+void Vecf::load(const float* arr) { val = _mm512_loadu_ps(arr); } 
 void Vecf::store(float* arr) { _mm512_storeu_ps(arr, val); }
 int Vecf::size() { return 16; }
 

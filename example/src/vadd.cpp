@@ -21,7 +21,7 @@ int main()
     va.load(A);
     vb.load(B);
 
-    va = va + vb;
+    va = va + vb * vb  / va;
     va.store(C);
 
     for (int i = 0; i < LEN - 1; i++)

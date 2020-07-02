@@ -3,6 +3,7 @@
         "*.tpp": "cpp",
         "*.cu": "cpp",
         "*.tcu": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "cstdlib": "cpp"
     }
 }
